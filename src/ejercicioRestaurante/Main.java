@@ -17,6 +17,12 @@ public class Main {
 		// TODO Apéndice de método generado automáticamente
 
 		
+		try {
+			frmReservas frame = new frmReservas();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		/*
 		Reserva reser=null;
 		
 		java.util.Date fecha=null;
@@ -46,6 +52,7 @@ public class Main {
 		} catch (CampoVacioException | DniException | ParseException | CuentaCorrienteException | ClassNotFoundException | SQLException e) {
 			System.err.println(e.getMessage());
 		}
+		*/
 		
 		/*
 		RestauranteController restaurante=null;
