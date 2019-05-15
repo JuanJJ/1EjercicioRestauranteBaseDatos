@@ -20,6 +20,16 @@ public class Reserva {
 		super();
 	}
 
+	public Reserva(String nombre, String dni, String cuentaPago, int numPersonas, Date fechaReserva, boolean parking) throws CampoVacioException, CuentaCorrienteException, DniException {
+		super();
+		this.setNombre(nombre);
+		this.setDni(dni);
+		this.setCuentaPago(cuentaPago);
+		this.setNumPersonas(numPersonas);
+		this.setFechaReserva(fechaReserva);
+		this.setParking(parking);
+	}
+
 	public Reserva(int idReserva, String nombre, String dni, String cuentaPago, int numPersonas, Date fechaReserva,
 			boolean parking) throws CampoVacioException, DniException, CuentaCorrienteException {
 		super();
