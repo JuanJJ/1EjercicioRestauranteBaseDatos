@@ -3,6 +3,7 @@ package modelo;
 import java.sql.Date;
 
 import excepciones.CampoVacioException;
+import excepciones.CuentaCorrienteException;
 import excepciones.DniException;
 
 public class Reserva {
@@ -20,7 +21,7 @@ public class Reserva {
 	}
 
 	public Reserva(int idReserva, String nombre, String dni, String cuentaPago, int numPersonas, Date fechaReserva,
-			boolean parking) throws CampoVacioException, DniException {
+			boolean parking) throws CampoVacioException, DniException, CuentaCorrienteException {
 		super();
 		this.setIdReserva(idReserva);
 		this.setNombre(nombre);
@@ -81,24 +82,87 @@ public class Reserva {
 		return cuentaPago;
 	}
 
-	public void setCuentaPago(String cuentaPago) {
-		this.cuentaPago = cuentaPago;
+	public void setCuentaPago(String cuentaPago) throws CuentaCorrienteException {
+		
+		if (compruebaCcc(cuentaPago)) {
+			this.cuentaPago = cuentaPago;
+		} else {
+			throw new CuentaCorrienteException();
+		}
+	}
+
+	private boolean compruebaCcc(String cuentaPago2) {
+		
+		int[]entSuc=new int[8];
+		int[]dc=new int[2];
+		int[]numCuenta=new int[10];
+		int[]numeros= {1,2,4,8,5,10,9,7,3,6};
+		int acu1=0,acu2=0;
+		cuentaPago2=cuentaPago2.replace("-", "");
+		if (cuentaPago2.length()==20) {
+			for (int i = 0; i < entSuc.length; i++) {
+				entSuc[i]=Integer.parseInt(Character.toString(cuentaPago2.charAt(i)));
+			}
+			for (int i = 0; i < dc.length; i++) {
+				dc[i]=Integer.parseInt(Character.toString(cuentaPago2.charAt(i+8)));
+			}
+			for (int i = 0; i < numCuenta.length; i++) {
+				numCuenta[i]=Integer.parseInt(Character.toString(cuentaPago2.charAt(i+10)));
+			}
+			
+			for (int i = 0; i < entSuc.length; i++) {
+				acu1+=numeros[i+2]*entSuc[i];
+			}
+			for (int i = 0; i < numeros.length; i++) {
+				acu2+=numeros[i]*numCuenta[i];
+			}
+			
+			int resto1=11-(acu1%11);
+			int resto2=11-(acu2%11);
+			
+			if (resto1==10) {
+				resto1=1;
+			}
+			if (resto1==11) {
+				resto1=0;
+			}
+			if (resto2==10) {
+				resto2=1;
+			}
+			if (resto2==11) {
+				resto2=0;
+			}
+			
+			if (resto1==dc[0]&&resto2==dc[1]) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	public int getNumPersonas() {
 		return numPersonas;
 	}
 
-	public void setNumPersonas(int numPersonas) {
-		this.numPersonas = numPersonas;
+	public void setNumPersonas(int numPersonas) throws CampoVacioException {
+		if (numPersonas>0) {
+			this.numPersonas = numPersonas;
+		} else {
+			throw new CampoVacioException();
+		}
 	}
 
 	public Date getFechaReserva() {
 		return fechaReserva;
 	}
 
-	public void setFechaReserva(Date fechaReserva) {
-		this.fechaReserva = fechaReserva;
+	public void setFechaReserva(Date fechaReserva) throws CampoVacioException {
+		if (fechaReserva!=null) {
+			this.fechaReserva = fechaReserva;
+		} else {
+			throw new CampoVacioException();
+		}
 	}
 
 	public boolean isParking() {
