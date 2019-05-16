@@ -39,6 +39,8 @@ import javax.swing.SwingConstants;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class frmReservas extends JFrame {
 
@@ -312,6 +314,40 @@ public class frmReservas extends JFrame {
 		});
 		
 		
+		tblReservas.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				puntero=tblReservas.getSelectedRow();
+				mostrarDatos();
+			}
+		});
+		
+		btnFiltrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String campo=comboCampo.getSelectedItem().toString();
+				String filtro=textFiltrar.getText();
+				if (campo.equals("Parking")) {
+					if (filtro.equalsIgnoreCase("si")) {
+						filtro="1";
+					} else if (filtro.equalsIgnoreCase("no")) {
+						filtro="0";
+					}
+				} 
+				
+				RestauranteController restaurante;
+				
+				try {
+					restaurante=new RestauranteController();
+					listaReservas=restaurante.getReservas("select * from reservas where "+campo+" like '%"+filtro+"%'");
+					cargarGrid();
+					restaurante.cerrarConexion();
+				} catch (ClassNotFoundException | SQLException e) {
+					// TODO Bloque catch generado automáticamente
+					e.printStackTrace();
+				}
+			}
+		});
+		
 		
 	//end definir eventos	
 	}
@@ -479,12 +515,13 @@ public class frmReservas extends JFrame {
 		panelGrid.add(scrollPane, BorderLayout.CENTER);
 		dtm=new DefaultTableModel();
 		tblReservas = new JTable(dtm);
+		
 	
 		
 		scrollPane.setViewportView(tblReservas);
 		
 		comboCampo = new JComboBox();
-		comboCampo.setModel(new DefaultComboBoxModel(new String[] {"titulo", "autor", "editorial"}));
+		comboCampo.setModel(new DefaultComboBoxModel(new String[] {"DNI", "Parking"}));
 		comboCampo.setBounds(396, 52, 68, 20);
 		panel.add(comboCampo);
 		
@@ -494,7 +531,6 @@ public class frmReservas extends JFrame {
 		textFiltrar.setColumns(10);
 		
 		btnFiltrar = new JButton("FILTRAR");
-		
 		btnFiltrar.setBounds(659, 51, 89, 23);
 		panel.add(btnFiltrar);
 		
