@@ -4,8 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -15,6 +19,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -25,7 +30,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import controlador.RestauranteController;
+import excepciones.CampoVacioException;
+import excepciones.CuentaCorrienteException;
+import excepciones.DniException;
 import modelo.Reserva;
+import javax.swing.SwingConstants;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class frmReservas extends JFrame {
 
@@ -38,8 +50,8 @@ public class frmReservas extends JFrame {
 	private JPanel panelGrid;
 	private JScrollPane scrollPane;
 	private JTable tblReservas;
-	private List<Reserva>listaReservas;
-	private int puntero;
+	private List<Reserva>listaReservas=new ArrayList<>();
+	private int puntero=0;
 	DefaultTableModel dtm;
 	private JTextField textNumPersonas;
 	private RestauranteController tablaLibros;
@@ -64,7 +76,8 @@ public class frmReservas extends JFrame {
 		
 		definirVentana();
 		definirEventos();
-		cargarDatos("select * from libros");
+		cargarDatos("select * from reservas");
+		
 		
 		
 		frame=this;
@@ -72,14 +85,43 @@ public class frmReservas extends JFrame {
 	}
 	
 	private void cargarDatos(String sql) {
-		// TODO Apéndice de método generado automáticamente
+		
+		RestauranteController restaurante;
+		try {
+			restaurante = new RestauranteController();
+			listaReservas=restaurante.getReservas(sql);
+			mostrarDatos();
+			restaurante.cerrarConexion();
+		} catch (ClassNotFoundException | SQLException e) {
+			System.err.println(e.getMessage());
+		}
+		
 
 	}
 
 
 
-	private void mostrarDatos(Reserva reserva) throws SQLException {
-		// TODO Apéndice de método generado automáticamente
+	private void mostrarDatos() {
+		
+		
+		Reserva reser=listaReservas.get(puntero);
+		
+		String idReserva=Integer.toString(reser.getIdReserva());
+		String nombre=reser.getNombre();
+		String dni=reser.getDni();
+		String cuentaPago=reser.getCuentaPago();
+		String numPersonas=Integer.toString(reser.getNumPersonas());
+		String fecha=reser.getFechaReserva().toString();
+		boolean parking=reser.isParking();
+		
+		textIdReserva.setText(idReserva);
+		textNombre.setText(nombre);
+		textDni.setText(dni);
+		textCuentaPago.setText(cuentaPago);
+		textNumPersonas.setText(numPersonas);
+		textFechaReserva.setText(fecha);
+		chckbxParking.setSelected(parking);
+		
 
 	
 	}
@@ -93,7 +135,172 @@ public class frmReservas extends JFrame {
 
 	//E V E N T O S
 	private void definirEventos() {
-			// TODO Apéndice de método generado automáticamente
+		
+		
+		//PANEL DE NAVEGACION
+		
+		btnPrimero.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				puntero=0;
+				mostrarDatos();
+			}
+		});
+		
+		btnAtras.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (puntero>0) {
+					puntero--;
+					mostrarDatos();
+				}
+			}
+		});
+		
+		btnAdelante.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (puntero<listaReservas.size()-1) {
+					puntero++;
+					mostrarDatos();
+				}
+				
+			}
+		});
+		
+		btnUltimo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				puntero=listaReservas.size()-1;
+				mostrarDatos();
+			}
+		});
+		
+		//PANEL MANTENIMIENTO
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				habilitarNavegador(false);
+				habilitarPanelMantenimiento(false);
+				textNombre.setEditable(true);
+				textDni.setEditable(true);
+				textNumPersonas.setEditable(true);
+				textCuentaPago.setEditable(true);
+				nuevoRegistro=false;
+			}
+		});
+		
+		btnDeshacer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				habilitarNavegador(true);
+				habilitarPanelMantenimiento(true);
+				textNombre.setEditable(false);
+				textDni.setEditable(false);
+				textNumPersonas.setEditable(false);
+				textCuentaPago.setEditable(false);
+				textFechaReserva.setEditable(false);
+				mostrarDatos();
+			}
+		});
+		
+		btnNuevo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				habilitarNavegador(false);
+				habilitarPanelMantenimiento(false);
+				textIdReserva.setText("");
+				textNombre.setEditable(true);
+				textNombre.setText("");
+				textDni.setEditable(true);
+				textDni.setText("");
+				textNumPersonas.setEditable(true);
+				textNumPersonas.setText("");
+				textCuentaPago.setEditable(true);
+				textCuentaPago.setText("");
+				textFechaReserva.setEditable(true);
+				textFechaReserva.setText("");
+				chckbxParking.setSelected(false);
+				nuevoRegistro=true;
+			}
+		});
+		
+		btnBorrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int opcion=JOptionPane.showConfirmDialog(frame, "Estas Seguro?", "Borrar", JOptionPane.INFORMATION_MESSAGE);
+				if (JOptionPane.OK_OPTION==opcion) {
+					Reserva reser=listaReservas.get(puntero);
+					try {
+						RestauranteController restaurante=new RestauranteController();
+						restaurante.eliminarReserva(reser);
+						cargarDatos("select * from reservas");
+						puntero=listaReservas.size()-1;
+						restaurante.cerrarConexion();
+					} catch (ClassNotFoundException | SQLException e1) {
+						// TODO Bloque catch generado automáticamente
+						e1.printStackTrace();
+					}
+				} else {
+					JOptionPane.showMessageDialog(frame, "No se realizo ningun cambio", "Eliminar", JOptionPane.INFORMATION_MESSAGE);
+				}
+				
+			}
+		});
+		
+		btnGuardar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				if (nuevoRegistro) {
+					Reserva reser=null;
+					RestauranteController resta=null;
+					String nombre=textNombre.getText();
+					String dni=textDni.getText();
+					String cuentaPago=textCuentaPago.getText();
+					int numPersonas=Integer.parseInt(textNumPersonas.getText());
+					SimpleDateFormat formateador=new SimpleDateFormat("yyyy-MM-dd");
+					boolean parking=chckbxParking.isSelected();
+					java.util.Date fecha;
+					Date fechaReserva;
+					try {
+						resta=new RestauranteController();
+						fecha=formateador.parse(textFechaReserva.getText());
+						fechaReserva=new Date(fecha.getTime());
+						
+						reser=new Reserva(nombre, dni, cuentaPago, numPersonas, fechaReserva, parking);
+						resta.agregarReserva(reser);
+						resta.cerrarConexion();
+						
+					} catch (ParseException | CampoVacioException | CuentaCorrienteException | DniException | SQLException | ClassNotFoundException e) {
+						System.err.println(e.getMessage());
+					}
+					
+					
+				} else {
+
+					Reserva reser=null;
+					RestauranteController resta=null;
+					int idReserva=Integer.parseInt(textIdReserva.getText());
+					String nombre=textNombre.getText();
+					String dni=textDni.getText();
+					String cuentaPago=textCuentaPago.getText();
+					int numPersonas=Integer.parseInt(textNumPersonas.getText());
+					SimpleDateFormat formateador=new SimpleDateFormat("yyyy-MM-dd");
+					boolean parking=chckbxParking.isSelected();
+					java.util.Date fecha;
+					Date fechaReserva;
+					
+					try {
+						resta=new RestauranteController();
+						fecha=formateador.parse(textFechaReserva.getText());
+						fechaReserva=new Date(fecha.getTime());
+						
+						reser=new Reserva(idReserva,nombre, dni, cuentaPago, numPersonas, fechaReserva, parking);
+						resta.modificarReserva(reser);
+						resta.cerrarConexion();
+						
+					} catch (ParseException | CampoVacioException | CuentaCorrienteException | DniException | SQLException | ClassNotFoundException e) {
+						System.err.println(e.getMessage());
+					}
+				}
+			}
+		});
+		
+		
+		
 	//end definir eventos	
 	}
 		
@@ -187,20 +394,24 @@ public class frmReservas extends JFrame {
 		panel.add(panelNavegador);
 	
 		// NAVEGADOR
-		btnPrimero = new JButton("Primero");
+		btnPrimero = new JButton("Pri");
+		btnPrimero.setMargin(new Insets(0, 0, 0, 0));
 		btnPrimero.setBounds(15, 15, 40, 40);
 		panelNavegador.add(btnPrimero);
 		
 		
-		btnAtras = new JButton("Atras");
+		btnAtras = new JButton("Atr");
+		btnAtras.setMargin(new Insets(0, 0, 0, 0));
 		btnAtras.setBounds(65, 15, 40, 40);
 		panelNavegador.add(btnAtras);
 
-		btnAdelante = new JButton("Adelante");
+		btnAdelante = new JButton("Ade");
+		btnAdelante.setMargin(new Insets(0, 0, 0, 0));
 		btnAdelante.setBounds(115, 15, 40, 40);
 		panelNavegador.add(btnAdelante);
 		
-		btnUltimo = new JButton("Ultimo");
+		btnUltimo = new JButton("Ult");
+		btnUltimo.setMargin(new Insets(0, 0, 0, 0));
 		btnUltimo.setBounds(165, 15, 40, 40);
 		panelNavegador.add(btnUltimo);
 		
@@ -211,33 +422,38 @@ public class frmReservas extends JFrame {
 		panel.add(panelMantenimiento);
 		
 		
-		btnNuevo = new JButton("Nuevo");
+		btnNuevo = new JButton("Nu");
+		btnNuevo.setMargin(new Insets(0, 0, 0, 0));
 		btnNuevo.setToolTipText("Insertar Nuevo Libro");
 		btnNuevo.setBounds(15, 15, 40, 40);
 		panelMantenimiento.add(btnNuevo);
 		
 		
-		btnEditar = new JButton("Editar");
+		btnEditar = new JButton("Ed");
+		btnEditar.setMargin(new Insets(0, 0, 0, 0));
 		btnEditar.setToolTipText("Editar");
 		btnEditar.setBounds(65, 15, 40, 40);
 		panelMantenimiento.add(btnEditar);
 		
 		
-		btnGuardar = new JButton("Guardar");
+		btnGuardar = new JButton("Gu");
+		btnGuardar.setMargin(new Insets(0, 0, 0, 0));
 		btnGuardar.setEnabled(false);
 		btnGuardar.setToolTipText("Guardar");
 		btnGuardar.setBounds(166, 15, 40, 40);
 		panelMantenimiento.add(btnGuardar);
 		
 		
-		btnDeshacer = new JButton("Deshacer");
+		btnDeshacer = new JButton("Des");
+		btnDeshacer.setMargin(new Insets(0, 0, 0, 0));
 		btnDeshacer.setEnabled(false);
 		btnDeshacer.setToolTipText("Deshacer");
 		btnDeshacer.setBounds(216, 15, 40, 40);
 		panelMantenimiento.add(btnDeshacer);
 		
 		
-		btnBorrar = new JButton("Borrar");
+		btnBorrar = new JButton("Bor");
+		btnBorrar.setMargin(new Insets(0, 0, 0, 0));
 		btnBorrar.setToolTipText("Borrar Registro");
 		btnBorrar.setBounds(116, 15, 40, 40);
 		panelMantenimiento.add(btnBorrar);
