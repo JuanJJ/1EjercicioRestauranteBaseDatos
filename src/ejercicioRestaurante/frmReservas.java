@@ -28,6 +28,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 
 import controlador.RestauranteController;
 import excepciones.CampoVacioException;
@@ -54,7 +55,6 @@ public class frmReservas extends JFrame {
 	private int puntero=0;
 	DefaultTableModel dtm;
 	private JTextField textNumPersonas;
-	private RestauranteController tablaLibros;
 	private ResultSet rs;
 	private boolean nuevoRegistro=false;
 	private JFrame frame;
@@ -91,6 +91,7 @@ public class frmReservas extends JFrame {
 			restaurante = new RestauranteController();
 			listaReservas=restaurante.getReservas(sql);
 			mostrarDatos();
+			cargarGrid();
 			restaurante.cerrarConexion();
 		} catch (ClassNotFoundException | SQLException e) {
 			System.err.println(e.getMessage());
@@ -127,8 +128,19 @@ public class frmReservas extends JFrame {
 	}
 
 
-	private void cargarGrid(List<Reserva> listaReservas) {
-		// TODO Apéndice de método generado automáticamente
+	private void cargarGrid() {
+		
+		String[]cabecera= {"ID_Reserva","Nombre","DNI","Cuenta_Pago","Num_Personas","Fecha Reserva","Parking"};
+		
+		dtm.setRowCount(0);
+		dtm.setColumnCount(0);
+		dtm.setColumnIdentifiers(cabecera);
+		Reserva reser=null;
+		
+		for (int i = 0; i < listaReservas.size(); i++) {
+			reser=listaReservas.get(i);
+			dtm.addRow(reser.toStringGrid());
+		}
 
 	}
 

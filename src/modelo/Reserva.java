@@ -1,6 +1,7 @@
 package modelo;
 
 import java.sql.Date;
+import java.util.Vector;
 
 import excepciones.CampoVacioException;
 import excepciones.CuentaCorrienteException;
@@ -209,6 +210,19 @@ public class Reserva {
 		if (idReserva != other.idReserva)
 			return false;
 		return true;
+	}
+
+	public Object[] toStringGrid() {
+		
+		
+		String cadenaidReserva=Integer.toString(idReserva);
+		String cadenaFechaReserva=fechaReserva.toString();
+		String cadenaParking=Boolean.toString(parking);
+		
+		
+		Object[]obj= {idReserva, nombre,dni, cuentaPago,numPersonas,cadenaFechaReserva,cadenaParking};
+		
+		return obj;
 	}
 	
 	
