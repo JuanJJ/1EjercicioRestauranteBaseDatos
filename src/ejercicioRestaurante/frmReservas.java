@@ -92,6 +92,9 @@ public class frmReservas extends JFrame {
 		try {
 			restaurante = new RestauranteController();
 			listaReservas=restaurante.getReservas(sql);
+			if (puntero>listaReservas.size()-1) {
+				puntero=listaReservas.size()-1;
+			}
 			mostrarDatos();
 			cargarGrid();
 			restaurante.cerrarConexion();
@@ -242,7 +245,7 @@ public class frmReservas extends JFrame {
 						RestauranteController restaurante=new RestauranteController();
 						restaurante.eliminarReserva(reser);
 						cargarDatos("select * from reservas");
-						puntero=listaReservas.size()-1;
+						
 						restaurante.cerrarConexion();
 					} catch (ClassNotFoundException | SQLException e1) {
 						// TODO Bloque catch generado automáticamente
