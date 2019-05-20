@@ -281,6 +281,13 @@ public class frmReservas extends JFrame {
 						resta.agregarReserva(reser);
 						resta.cerrarConexion();
 						
+						cargarDatos("select * from reservas");
+						habilitarNavegador(true);
+						habilitarPanelMantenimiento(true);
+						habilitarPanelLibros(false);
+						
+						
+						
 					} catch (ParseException | CampoVacioException | CuentaCorrienteException | DniException | SQLException | ClassNotFoundException e) {
 						System.err.println(e.getMessage());
 					}
