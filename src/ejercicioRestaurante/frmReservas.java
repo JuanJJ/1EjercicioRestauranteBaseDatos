@@ -64,6 +64,8 @@ public class frmReservas extends JFrame {
 	private JTextField textFiltrar;
 	JButton btnFiltrar;
 	JLabel lblConsulta;
+	private JButton btnReservasDeHoy;
+	private JButton btnTodasLasReservas;
 
 	
 	public frmReservas() {
@@ -358,6 +360,43 @@ public class frmReservas extends JFrame {
 			}
 		});
 		
+		btnReservasDeHoy.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			
+				java.util.Date fecha=new java.util.Date();
+				Date fechaActual= new Date(fecha.getTime());
+				
+				RestauranteController restaurante;
+				
+				try {
+					restaurante=new RestauranteController();
+					listaReservas=restaurante.getReservas("select * from reservas where Fecha_Reserva like '%"+fechaActual+"%'");
+					cargarGrid();
+					restaurante.cerrarConexion();
+				} catch (ClassNotFoundException | SQLException e) {
+					// TODO Bloque catch generado automáticamente
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		btnTodasLasReservas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				RestauranteController restaurante;
+				
+				try {
+					restaurante=new RestauranteController();
+					listaReservas=restaurante.getReservas("select * from reservas");
+					cargarGrid();
+					restaurante.cerrarConexion();
+				} catch (ClassNotFoundException | SQLException e1) {
+					// TODO Bloque catch generado automáticamente
+					System.out.println(e1.getMessage());
+				}
+			}
+		});
+		
 		
 	//end definir eventos	
 	}
@@ -547,6 +586,14 @@ public class frmReservas extends JFrame {
 		lblConsulta = new JLabel("Consulta");
 		lblConsulta.setBounds(392, 21, 257, 14);
 		panel.add(lblConsulta);
+		
+		btnReservasDeHoy = new JButton("Reservas de hoy");
+		btnReservasDeHoy.setBounds(787, 50, 145, 23);
+		panel.add(btnReservasDeHoy);
+		
+		btnTodasLasReservas = new JButton("Todas las Reservas");
+		btnTodasLasReservas.setBounds(787, 17, 145, 20);
+		panel.add(btnTodasLasReservas);
 
 	}
 
@@ -592,5 +639,4 @@ public class frmReservas extends JFrame {
 		
 		
 	}
-
 }
